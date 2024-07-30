@@ -16,7 +16,37 @@ jobs:
     - name: Set up Docker Compose
       run: |
         sudo apt-get update
-        sudo apt-get install -y docker-compose
+        sudo apt-get install -y docker-compose jq
+
+    - name: Build customer image
+      run: |
+        docker build -t customer-image:latest .
+        docker images
+
+    - name: Generate Docker run command using Claude
+      id: generate-command
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      run: |
+        DOCKERFILE_CONTENT=$(cat Dockerfile)
+        PROMPT="Given the following Dockerfile, generate a Docker run command that will effectively exercise the container for security testing. The command should include appropriate flags and arguments to test the main functionality of the container. Dockerfile:
+
+        $DOCKERFILE_CONTENT
+
+        Generate only the Docker run command, without any explanation:"
+
+        API_RESPONSE=$(curl -s -X POST https://api.anthropic.com/v1/completions \
+          -H "Content-Type: application/json" \
+          -H "X-API-Key: $ANTHROPIC_API_KEY" \
+          -d '{
+            "model": "claude-2.0",
+            "prompt": "Human: '"$PROMPT"'\n\nAssistant:",
+            "max_tokens_to_sample": 300,
+            "temperature": 0.2
+          }')
+
+        DOCKER_RUN_COMMAND=$(echo $API_RESPONSE | jq -r '.completion' | tr -d '\n')
+        echo "DOCKER_RUN_COMMAND=$DOCKER_RUN_COMMAND" >> $GITHUB_OUTPUT
 
     - name: Run Docker Compose
       env:
@@ -36,10 +66,9 @@ jobs:
     - name: Check container status
       run: sudo docker ps -a
 
-    - name: Test nginx container
+    - name: Exercise customer container
       run: |
-        curl http://localhost:80
-        sudo docker exec $(sudo docker ps -q --filter name=nginx) nginx -t
+        ${{ steps.generate-command.outputs.DOCKER_RUN_COMMAND }}
 
     - name: Collect eBPF agent logs
       run: sudo docker-compose logs agent
@@ -51,6 +80,11 @@ jobs:
       run: |
         # Add commands here to analyze the eBPF data collected by the agent
         # This might involve parsing the agent logs or accessing a specific output file
+
+    - name: Check for security issues
+      run: |
+        # Add commands to check for security issues based on the eBPF data
+        # This could involve running a separate analysis tool or script
 
     - name: Clean up
       run: sudo docker-compose down
