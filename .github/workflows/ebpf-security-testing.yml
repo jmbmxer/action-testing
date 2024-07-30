@@ -28,8 +28,9 @@ jobs:
       env:
         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       run: |
-        DOCKERFILE_CONTENT=$(cat Dockerfile)
-        PROMPT="Given the following Dockerfile, generate a Docker run command that will effectively exercise the container for security testing. The command should:
+        DOCKERFILE_CONTENT=$(cat Dockerfile | jq -sR .)
+        PROMPT=$(cat << EOF | jq -sR .
+        Given the following Dockerfile, generate a Docker run command that will effectively exercise the container for security testing. The command should:
         1. Run the container in detached mode
         2. Map the container's port 8080 to the host's port 8080
         3. Use the image tag 'customer-image:latest'
@@ -38,7 +39,9 @@ jobs:
 
         $DOCKERFILE_CONTENT
 
-        Generate only the Docker run command, without any explanation:"
+        Generate only the Docker run command, without any explanation.
+        EOF
+        )
 
         echo "Sending request to Claude API..."
         API_RESPONSE=$(curl -v -s -X POST https://api.anthropic.com/v1/messages \
@@ -51,7 +54,7 @@ jobs:
             "messages": [
               {
                 "role": "user",
-                "content": "'"$PROMPT"'"
+                "content": '"$PROMPT"'
               }
             ]
           }')
