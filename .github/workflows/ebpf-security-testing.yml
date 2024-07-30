@@ -40,7 +40,8 @@ jobs:
 
         Generate only the Docker run command, without any explanation:"
 
-        API_RESPONSE=$(curl -s -X POST https://api.anthropic.com/v1/messages \
+        echo "Sending request to Claude API..."
+        API_RESPONSE=$(curl -v -s -X POST https://api.anthropic.com/v1/messages \
           -H "Content-Type: application/json" \
           -H "x-api-key: $ANTHROPIC_API_KEY" \
           -H "anthropic-version: 2023-06-01" \
@@ -55,8 +56,17 @@ jobs:
             ]
           }')
 
-        DOCKER_RUN_COMMAND=$(echo $API_RESPONSE | jq -r '.content[0].text' | tr -d '\n')
-        echo "Generated Docker run command: $DOCKER_RUN_COMMAND"
+        echo "API Response:"
+        echo "$API_RESPONSE" | jq '.'
+
+        DOCKER_RUN_COMMAND=$(echo "$API_RESPONSE" | jq -r '.content[0].text' | tr -d '\n')
+        echo "Extracted Docker run command: $DOCKER_RUN_COMMAND"
+
+        if [ -z "$DOCKER_RUN_COMMAND" ] || [ "$DOCKER_RUN_COMMAND" = "null" ]; then
+          echo "Error: Failed to extract Docker run command from API response"
+          exit 1
+        fi
+
         echo "docker_run_command=$DOCKER_RUN_COMMAND" >> $GITHUB_OUTPUT
 
     - name: Run Docker Compose
@@ -72,7 +82,7 @@ jobs:
         sudo docker-compose ps
 
     - name: Wait for containers to start
-      run: sleep 15
+      run: sleep 60
 
     - name: Check container status
       run: sudo docker ps -a
