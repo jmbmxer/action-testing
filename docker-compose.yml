@@ -53,5 +53,10 @@ services:
       EXPORTER_PROVIDER_KSOC_API_SECRET_KEY: ${EXPORTER_PROVIDER_KSOC_API_SECRET_KEY}
     volumes:
       - shared-volume:/tmp/
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+
 volumes:
   shared-volume:
