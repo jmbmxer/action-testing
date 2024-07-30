@@ -35,22 +35,23 @@ jobs:
     - name: Run Docker Compose
       run: |
         sudo docker-compose up -d
+        sudo docker-compose ps
 
     - name: Wait for containers to start
       run: |
-        sleep 30
+        sleep 60
 
     - name: Check container status
       run: |
-        sudo docker ps
+        sudo docker ps -a
 
     - name: Check agent logs
       run: |
-        sudo docker logs $(sudo docker ps -q --filter name=agent)
+        sudo docker-compose logs agent || true
 
     - name: Check exporter logs
       run: |
-        sudo docker logs $(sudo docker ps -q --filter name=exporter)
+        sudo docker-compose logs exporter || true
 
     - name: Run security tests
       run: |
