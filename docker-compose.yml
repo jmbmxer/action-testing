@@ -1,0 +1,57 @@
+services:
+  agent:
+    image: us.gcr.io/ksoc-public/ksoc-node-agent:v0.0.13
+    entrypoint:
+      - micro-agent
+    privileged: false
+    user: "0:0"
+    cap_add:
+      - BPF
+      - PERFMON
+      - SYS_ADMIN
+      - SYSLOG
+      - SYS_PTRACE
+      - SYS_RESOURCE
+      - IPC_LOCK
+      - NET_ADMIN
+      - NET_RAW
+    cap_drop:
+      - ALL
+    security_opt:
+      - "seccomp=unconfined"
+      - "apparmor=unconfined"
+    environment:
+      HOST_ROOT: /host
+      AGENT_LOG_LEVEL: DEBUG
+      AGENT_TRACER_COLLECTOR_DOCKER_ENABLED: '1'
+      AGENT_TRACER_COLLECTOR_DOCKER_SOCKET: '/host/run/docker.sock'
+      AGENT_TRACER_COLLECTOR_CONTAINERD_ENABLED: '1'
+      AGENT_TRACER_COLLECTOR_CONTAINERD_SOCKET: '/host/run/containerd/containerd.sock'
+    volumes:
+      - /bin:/host/bin
+      - /etc:/host/etc
+      - /opt:/host/opt
+      - /usr:/host/usr
+      - /proc:/host/proc
+      - /run:/host/run
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /sys/kernel/tracing:/sys/kernel/tracing
+      - /sys/fs/bpf:/sys/fs/bpf
+      - /run/systemd:/run/systemd
+      - shared-volume:/tmp/
+  exporter:
+    image: us.gcr.io/ksoc-public/ksoc-node-agent:v0.0.13
+    entrypoint:
+      - micro-exporter
+    environment:
+      EXPORTER_LOG_LEVEL: ${EXPORTER_LOG_LEVEL}
+      EXPORTER_PROVIDER_STDOUT_ENABLED: ${EXPORTER_PROVIDER_STDOUT_ENABLED}
+      EXPORTER_PROVIDER_KSOC_API_ENABLED: ${EXPORTER_PROVIDER_KSOC_API_ENABLED}
+      EXPORTER_PROVIDER_KSOC_API_URL: ${EXPORTER_PROVIDER_KSOC_API_URL}
+      EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID: ${EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID}
+      EXPORTER_PROVIDER_KSOC_API_SECRET_KEY: ${EXPORTER_PROVIDER_KSOC_API_SECRET_KEY}
+    volumes:
+      - shared-volume:/tmp/
+volumes:
+  shared-volume:

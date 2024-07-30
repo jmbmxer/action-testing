@@ -1,0 +1,64 @@
+name: eBPF Security Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-ebpf-agent:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
+    - name: Set environment variables
+      env:
+        EXPORTER_PROVIDER_KSOC_API_URL: ${{ secrets.EXPORTER_PROVIDER_KSOC_API_URL }}
+        EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID: ${{ secrets.EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID }}
+        EXPORTER_PROVIDER_KSOC_API_SECRET_KEY: ${{ secrets.EXPORTER_PROVIDER_KSOC_API_SECRET_KEY }}
+      run: |
+        echo "EXPORTER_LOG_LEVEL=DEBUG" >> $GITHUB_ENV
+        echo "EXPORTER_PROVIDER_STDOUT_ENABLED=1" >> $GITHUB_ENV
+        echo "EXPORTER_PROVIDER_KSOC_API_ENABLED=1" >> $GITHUB_ENV
+        echo "EXPORTER_PROVIDER_KSOC_API_URL=$EXPORTER_PROVIDER_KSOC_API_URL" >> $GITHUB_ENV
+        echo "EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID=$EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID" >> $GITHUB_ENV
+        echo "EXPORTER_PROVIDER_KSOC_API_SECRET_KEY=$EXPORTER_PROVIDER_KSOC_API_SECRET_KEY" >> $GITHUB_ENV
+
+    - name: Run Docker Compose
+      run: |
+        sudo docker-compose up -d
+
+    - name: Wait for containers to start
+      run: |
+        sleep 30
+
+    - name: Check container status
+      run: |
+        sudo docker ps
+
+    - name: Check agent logs
+      run: |
+        sudo docker logs $(sudo docker ps -q --filter name=agent)
+
+    - name: Check exporter logs
+      run: |
+        sudo docker logs $(sudo docker ps -q --filter name=exporter)
+
+    - name: Run security tests
+      run: |
+        # Add your security testing commands here
+        # For example:
+        # sudo docker exec $(sudo docker ps -q --filter name=agent) /path/to/security/test/script.sh
+
+    - name: Cleanup
+      if: always()
+      run: |
+        sudo docker-compose down
