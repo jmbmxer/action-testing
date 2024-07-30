@@ -41,7 +41,7 @@ services:
       - /run/systemd:/run/systemd
       - shared-volume:/tmp/
   exporter:
-    image: us.gcr.io/ksoc-public/ksoc-node-agent:v0.0.13
+    image: us.gcr.io/ksoc-public/ksoc-node-agent:v0.0.16
     entrypoint:
       - micro-exporter
     environment:
