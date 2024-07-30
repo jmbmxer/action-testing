@@ -1,6 +1,6 @@
 services:
   agent:
-    image: us.gcr.io/ksoc-public/ksoc-node-agent:v0.0.13
+    image: us.gcr.io/ksoc-public/ksoc-node-agent:v0.0.16
     entrypoint:
       - micro-agent
     privileged: false
