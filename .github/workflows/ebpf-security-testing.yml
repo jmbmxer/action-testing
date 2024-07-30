@@ -46,6 +46,7 @@ jobs:
           }')
 
         DOCKER_RUN_COMMAND=$(echo $API_RESPONSE | jq -r '.completion' | tr -d '\n')
+        echo "Generated Docker run command: $DOCKER_RUN_COMMAND"
         echo "DOCKER_RUN_COMMAND=$DOCKER_RUN_COMMAND" >> $GITHUB_OUTPUT
 
     - name: Run Docker Compose
@@ -68,7 +69,19 @@ jobs:
 
     - name: Exercise customer container
       run: |
+        if [ -z "${{ steps.generate-command.outputs.DOCKER_RUN_COMMAND }}" ]; then
+          echo "Error: No Docker run command generated"
+          exit 1
+        fi
+        echo "Executing: ${{ steps.generate-command.outputs.DOCKER_RUN_COMMAND }}"
         ${{ steps.generate-command.outputs.DOCKER_RUN_COMMAND }}
+        
+        # Wait for the container to start
+        sleep 10
+        
+        # Test the endpoints
+        curl http://localhost:8080 || echo "Failed to reach /"
+        curl http://localhost:8080/test || echo "Failed to reach /test"
 
     - name: Collect eBPF agent logs
       run: sudo docker-compose logs agent
