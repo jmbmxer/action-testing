@@ -33,8 +33,15 @@ jobs:
         echo "EXPORTER_PROVIDER_KSOC_API_SECRET_KEY=$EXPORTER_PROVIDER_KSOC_API_SECRET_KEY" >> $GITHUB_ENV
 
     - name: Run Docker Compose
+      env:
+        EXPORTER_LOG_LEVEL: DEBUG
+        EXPORTER_PROVIDER_STDOUT_ENABLED: '1'
+        EXPORTER_PROVIDER_KSOC_API_ENABLED: '1'
+        EXPORTER_PROVIDER_KSOC_API_URL: ${{ secrets.EXPORTER_PROVIDER_KSOC_API_URL }}
+        EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID: ${{ secrets.EXPORTER_PROVIDER_KSOC_API_ACCESS_KEY_ID }}
+        EXPORTER_PROVIDER_KSOC_API_SECRET_KEY: ${{ secrets.EXPORTER_PROVIDER_KSOC_API_SECRET_KEY }}
       run: |
-        sudo docker-compose up -d
+        sudo -E docker-compose up -d
         sudo docker-compose ps
 
     - name: Wait for containers to start
