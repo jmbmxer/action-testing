@@ -40,17 +40,22 @@ jobs:
 
         Generate only the Docker run command, without any explanation:"
 
-        API_RESPONSE=$(curl -s -X POST https://api.anthropic.com/v1/completions \
+        API_RESPONSE=$(curl -s -X POST https://api.anthropic.com/v1/messages \
           -H "Content-Type: application/json" \
-          -H "X-API-Key: $ANTHROPIC_API_KEY" \
+          -H "x-api-key: $ANTHROPIC_API_KEY" \
+          -H "anthropic-version: 2023-06-01" \
           -d '{
-            "model": "claude-2.0",
-            "prompt": "Human: '"$PROMPT"'\n\nAssistant:",
-            "max_tokens_to_sample": 300,
-            "temperature": 0.2
+            "model": "claude-3-sonnet-20240229",
+            "max_tokens": 1024,
+            "messages": [
+              {
+                "role": "user",
+                "content": "'"$PROMPT"'"
+              }
+            ]
           }')
 
-        DOCKER_RUN_COMMAND=$(echo $API_RESPONSE | jq -r '.completion' | tr -d '\n')
+        DOCKER_RUN_COMMAND=$(echo $API_RESPONSE | jq -r '.content[0].text' | tr -d '\n')
         echo "Generated Docker run command: $DOCKER_RUN_COMMAND"
         echo "docker_run_command=$DOCKER_RUN_COMMAND" >> $GITHUB_OUTPUT
 
@@ -67,7 +72,7 @@ jobs:
         sudo docker-compose ps
 
     - name: Wait for containers to start
-      run: sleep 60
+      run: sleep 15
 
     - name: Check container status
       run: sudo docker ps -a
