@@ -29,7 +29,12 @@ jobs:
         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       run: |
         DOCKERFILE_CONTENT=$(cat Dockerfile)
-        PROMPT="Given the following Dockerfile, generate a Docker run command that will effectively exercise the container for security testing. The command should include appropriate flags and arguments to test the main functionality of the container. Dockerfile:
+        PROMPT="Given the following Dockerfile, generate a Docker run command that will effectively exercise the container for security testing. The command should:
+        1. Run the container in detached mode
+        2. Map the container's port 8080 to the host's port 8080
+        3. Use the image tag 'customer-image:latest'
+        
+        Dockerfile:
 
         $DOCKERFILE_CONTENT
 
@@ -47,7 +52,7 @@ jobs:
 
         DOCKER_RUN_COMMAND=$(echo $API_RESPONSE | jq -r '.completion' | tr -d '\n')
         echo "Generated Docker run command: $DOCKER_RUN_COMMAND"
-        echo "DOCKER_RUN_COMMAND=$DOCKER_RUN_COMMAND" >> $GITHUB_OUTPUT
+        echo "docker_run_command=$DOCKER_RUN_COMMAND" >> $GITHUB_OUTPUT
 
     - name: Run Docker Compose
       env:
@@ -69,12 +74,12 @@ jobs:
 
     - name: Exercise customer container
       run: |
-        if [ -z "${{ steps.generate-command.outputs.DOCKER_RUN_COMMAND }}" ]; then
+        if [ -z "${{ steps.generate-command.outputs.docker_run_command }}" ]; then
           echo "Error: No Docker run command generated"
           exit 1
         fi
-        echo "Executing: ${{ steps.generate-command.outputs.DOCKER_RUN_COMMAND }}"
-        ${{ steps.generate-command.outputs.DOCKER_RUN_COMMAND }}
+        echo "Executing: ${{ steps.generate-command.outputs.docker_run_command }}"
+        ${{ steps.generate-command.outputs.docker_run_command }}
         
         # Wait for the container to start
         sleep 10
