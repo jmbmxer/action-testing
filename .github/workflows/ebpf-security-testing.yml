@@ -32,7 +32,7 @@ jobs:
         PROMPT=$(cat << EOF | jq -sR .
         Given the following Dockerfile, generate a Docker run command that will effectively exercise the container for security testing. The command should:
         1. Run the container in detached mode
-        2. Map the container's port 8080 to the host's port 8080
+        2. Map the container's port 8080 to the host's port 8082
         3. Use the image tag 'customer-image:latest'
         
         Dockerfile:
@@ -85,7 +85,7 @@ jobs:
         sudo docker-compose ps
 
     - name: Wait for containers to start
-      run: sleep 60
+      run: sleep 15
 
     - name: Check container status
       run: sudo docker ps -a
@@ -103,8 +103,8 @@ jobs:
         sleep 10
         
         # Test the endpoints
-        curl http://localhost:8080 || echo "Failed to reach /"
-        curl http://localhost:8080/test || echo "Failed to reach /test"
+        curl http://localhost:8082 || echo "Failed to reach /"
+        curl http://localhost:8082/test || echo "Failed to reach /test"
 
     - name: Collect eBPF agent logs
       run: sudo docker-compose logs agent
