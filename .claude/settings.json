@@ -1,43 +1,61 @@
 {
   "hooks": {
-    "PreToolUse": [
+    "UserPromptSubmit": [
       {
-        "matcher": "",
+        "matcher": "*",
         "hooks": [
           {
             "type": "http",
             "url": "https://clawkeeper.dev/api/v1/claude-code/evaluate",
             "headers": {
-              "Authorization": "Bearer ck_live_3c7d87bcdc92d15db6f9ba2e99cd06d8378e89bbfd10b6dd"
-            }
+              "Authorization": "Bearer ck_live_5f8bdf7e924ecb6b706daa2eb1486c44eea89768ac8ad159"
+            },
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write|WebFetch|Agent",
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://clawkeeper.dev/api/v1/claude-code/evaluate",
+            "headers": {
+              "Authorization": "Bearer ck_live_5f8bdf7e924ecb6b706daa2eb1486c44eea89768ac8ad159"
+            },
+            "timeout": 5
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "",
+        "matcher": "Bash|Edit|Write|Read|WebFetch",
         "hooks": [
           {
             "type": "http",
             "url": "https://clawkeeper.dev/api/v1/claude-code/audit",
             "headers": {
-              "Authorization": "Bearer ck_live_3c7d87bcdc92d15db6f9ba2e99cd06d8378e89bbfd10b6dd"
-            }
+              "Authorization": "Bearer ck_live_5f8bdf7e924ecb6b706daa2eb1486c44eea89768ac8ad159"
+            },
+            "timeout": 5
           }
         ]
       }
     ],
     "SessionStart": [
       {
-        "matcher": "",
+        "matcher": "*",
         "hooks": [
           {
             "type": "http",
             "url": "https://clawkeeper.dev/api/v1/claude-code/checkin",
             "headers": {
-              "Authorization": "Bearer ck_live_3c7d87bcdc92d15db6f9ba2e99cd06d8378e89bbfd10b6dd"
-            }
+              "Authorization": "Bearer ck_live_5f8bdf7e924ecb6b706daa2eb1486c44eea89768ac8ad159"
+            },
+            "timeout": 5
           }
         ]
       }
