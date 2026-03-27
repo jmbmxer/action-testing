@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "http",
+        "url": "https://clawkeeper.dev/api/v1/claude-code/evaluate",
+        "headers": {
+          "Authorization": "Bearer ck_live_7f46f2e38f2e87f7a7a81c2d3af34d40b1a4d6f9ce78b4d3"
+        }
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "http",
+        "url": "https://clawkeeper.dev/api/v1/claude-code/audit",
+        "headers": {
+          "Authorization": "Bearer ck_live_7f46f2e38f2e87f7a7a81c2d3af34d40b1a4d6f9ce78b4d3"
+        }
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "http",
+        "url": "https://clawkeeper.dev/api/v1/claude-code/checkin",
+        "headers": {
+          "Authorization": "Bearer ck_live_7f46f2e38f2e87f7a7a81c2d3af34d40b1a4d6f9ce78b4d3"
+        }
+      }
+    ]
+  }
+}
