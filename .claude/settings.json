@@ -8,7 +8,7 @@
             "type": "http",
             "url": "https://clawkeeper.dev/api/v1/claude-code/evaluate",
             "headers": {
-              "Authorization": "Bearer ck_live_3d4a9301c1ffc4f681c9dfd3df78f1c638e8e30509e270a0"
+              "Authorization": "Bearer ck_live_3c7d87bcdc92d15db6f9ba2e99cd06d8378e89bbfd10b6dd"
             }
           }
         ]
@@ -22,7 +22,7 @@
             "type": "http",
             "url": "https://clawkeeper.dev/api/v1/claude-code/audit",
             "headers": {
-              "Authorization": "Bearer ck_live_3d4a9301c1ffc4f681c9dfd3df78f1c638e8e30509e270a0"
+              "Authorization": "Bearer ck_live_3c7d87bcdc92d15db6f9ba2e99cd06d8378e89bbfd10b6dd"
             }
           }
         ]
@@ -36,7 +36,7 @@
             "type": "http",
             "url": "https://clawkeeper.dev/api/v1/claude-code/checkin",
             "headers": {
-              "Authorization": "Bearer ck_live_3d4a9301c1ffc4f681c9dfd3df78f1c638e8e30509e270a0"
+              "Authorization": "Bearer ck_live_3c7d87bcdc92d15db6f9ba2e99cd06d8378e89bbfd10b6dd"
             }
           }
         ]
